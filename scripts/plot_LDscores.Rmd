@@ -1,0 +1,503 @@
+---
+title: "LD scores"
+output: html_document
+date: "2026-06-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
+library(data.table)
+```
+
+```{r, echo = FALSE}
+
+for(POP in c("AFR", "AMR", "EAS", "EUR", "SAS", "ALL")) {
+  objname <- paste0(POP, "_ldscores_new")
+  for(CHR in 1:22) {
+    filename <- paste0("../results/ldscores/", POP, "/", CHR, ".l2.ldscore.gz")
+    df <- fread(filename)
+    colnames(df) <- c("CHR", "SNP", "BP", paste0("L2_", POP))
+    if(CHR == 1) {
+      assign(objname, df)
+    } else {
+      assign(objname, rbind(get(objname), df))
+    }
+  }
+}
+
+ldscores <- AFR_ldscores_new
+for(POP in c("AMR", "EAS", "EUR", "SAS", "ALL")) {
+  ldscores <- merge(
+    ldscores, 
+    get(paste0(POP, "_ldscores_new")),
+    all = FALSE,
+    sort = FALSE)
+}
+
+ldscores$L2_MEAN <- rowMeans(ldscores[,4:8], na.rm = T)
+
+weights <- c(9358, 1114, 2831, 465060, 10014) / 488377
+ldscores$L2_MEAN_WEIGHTED <- apply(ldscores[,4:8], 1, FUN = function(x) {
+  sum(as.vector(unlist(x)) * weights)
+})
+
+rolling_windows_mean <- function(i, x, size, step) {
+  starts <- seq(1, length(x)-step, step)
+  stops <- starts + size
+  stops[length(stops)] <- length(x)
+  windows <- cbind(starts, stops)
+  means <- apply(windows, 1, FUN = function(rw) {
+    mean(unlist(x[rw[1]:rw[2]]), na.rm = T)
+  })
+  midpoints <- apply(windows, 1, FUN = function(rw) {
+    i[round(rw[1] + ((rw[2] - rw[1] )/ 2))]
+  })
+  return(data.frame(midpoints, means))
+}
+```
+
+## All 5 1000G populations
+
+```{r, echo = FALSE}
+for(chr in 1:22){
+  AFR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 4])),
+    1000,
+    500
+  )
+  AMR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 5])),
+    1000,
+    500
+  )
+  EAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 6])),
+    1000,
+    500
+  )
+  EUR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 7])),
+    1000,
+    500
+  )
+  SAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 8])),
+    1000,
+    500
+  )
+  plot(
+    x = c(AFR$midpoints, AMR$midpoints, EAS$midpoints, EUR$midpoints, SAS$midpoints),
+    y = c(AFR$means, AMR$means, EAS$means, EUR$means, SAS$means),
+    type = "n",
+    xlab = "genomic position (bp)",
+    ylab = "L2",
+    main = paste("chr", chr)
+  )
+  if(chr == 6) {
+    rect(
+      xleft = 25000000,
+      xright = 34000000,
+      ybottom = -100,
+      ytop = 100,
+      col = "lightgrey",
+      border = NULL
+    )
+  }
+  lines(
+    x = AFR$midpoints,
+    y = AFR$means,
+    col = 1
+  )
+  lines(
+    x = AMR$midpoints,
+    y = AMR$means,
+    col = 2
+  )
+  lines(
+    x = EAS$midpoints,
+    y = EAS$means,
+    col = 3
+  )
+  lines(
+    x = EUR$midpoints,
+    y = EUR$means,
+    col = 4
+  )
+  lines(
+    x = SAS$midpoints,
+    y = SAS$means,
+    col = 5
+  )
+  legend(
+    "topright",
+    legend = c("AFR", "AMR", "EAS", "EUR", "SAS"),
+    pch = "-",
+    col = 1:5
+  )
+}
+```
+
+## All 5 1000G populations + their mean value
+
+```{r, echo = FALSE}
+for(chr in 1:22){
+  AFR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 4])),
+    1000,
+    500
+  )
+  AMR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 5])),
+    1000,
+    500
+  )
+  EAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 6])),
+    1000,
+    500
+  )
+  EUR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 7])),
+    1000,
+    500
+  )
+  SAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 8])),
+    1000,
+    500
+  )
+  MEAN <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 10])),
+    1000,
+    500
+  )
+  plot(
+    x = c(AFR$midpoints, AMR$midpoints, EAS$midpoints, EUR$midpoints, SAS$midpoints, MEAN$midpoints),
+    y = c(AFR$means, AMR$means, EAS$means, EUR$means, SAS$means, MEAN$means),
+    type = "n",
+    xlab = "genomic position (bp)",
+    ylab = "L2",
+    main = paste("chr", chr)
+  )
+  if(chr == 6) {
+    rect(
+      xleft = 25000000,
+      xright = 34000000,
+      ybottom = -100,
+      ytop = 100,
+      col = "lightgrey",
+      border = NULL
+    )
+  }
+  lines(
+    x = AFR$midpoints,
+    y = AFR$means,
+    col = 1
+  )
+  lines(
+    x = AMR$midpoints,
+    y = AMR$means,
+    col = 2
+  )
+  lines(
+    x = EAS$midpoints,
+    y = EAS$means,
+    col = 3
+  )
+  lines(
+    x = EUR$midpoints,
+    y = EUR$means,
+    col = 4
+  )
+  lines(
+    x = SAS$midpoints,
+    y = SAS$means,
+    col = 5
+  )
+  lines(
+    x = MEAN$midpoints,
+    y = MEAN$means,
+    col = 6,
+    lwd = 1.8
+  )
+  legend(
+    "topright",
+    legend = c("AFR", "AMR", "EAS", "EUR", "SAS", "MEAN"),
+    lwd = c(rep(1, 5), 1.8),
+    col = 1:6
+  )
+}
+```
+
+## All 5 1000G populations + their weighted mean value
+
+Weights are calculated according to the proportions in the UKB sample
+
+
+```{r, echo = FALSE}
+for(chr in 1:22){
+  AFR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 4])),
+    1000,
+    500
+  )
+  AMR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 5])),
+    1000,
+    500
+  )
+  EAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 6])),
+    1000,
+    500
+  )
+  EUR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 7])),
+    1000,
+    500
+  )
+  SAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 8])),
+    1000,
+    500
+  )
+  WEIGHTED_MEAN <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 11])),
+    1000,
+    500
+  )
+  plot(
+    x = c(AFR$midpoints, AMR$midpoints, EAS$midpoints, EUR$midpoints, SAS$midpoints, WEIGHTED_MEAN$midpoints),
+    y = c(AFR$means, AMR$means, EAS$means, EUR$means, SAS$means, WEIGHTED_MEAN$means),
+    type = "n",
+    xlab = "genomic position (bp)",
+    ylab = "L2",
+    main = paste("chr", chr)
+  )
+  if(chr == 6) {
+    rect(
+      xleft = 25000000,
+      xright = 34000000,
+      ybottom = -100,
+      ytop = 100,
+      col = "lightgrey",
+      border = NULL
+    )
+  }
+  lines(
+    x = AFR$midpoints,
+    y = AFR$means,
+    col = 1
+  )
+  lines(
+    x = AMR$midpoints,
+    y = AMR$means,
+    col = 2
+  )
+  lines(
+    x = EAS$midpoints,
+    y = EAS$means,
+    col = 3
+  )
+  lines(
+    x = EUR$midpoints,
+    y = EUR$means,
+    col = 4
+  )
+  lines(
+    x = SAS$midpoints,
+    y = SAS$means,
+    col = 5
+  )
+  lines(
+    x = WEIGHTED_MEAN$midpoints,
+    y = WEIGHTED_MEAN$means,
+    col = 6,
+    lwd = 1.8
+  )
+  legend(
+    "topright",
+    legend = c("AFR", "AMR", "EAS", "EUR", "SAS", "WEIGHTED MEAN"),
+    lwd = c(rep(1, 5), 1.8),
+    col = 1:6
+  )
+}
+```
+
+
+## All 5 1000G populations + LD scores calculated from the combined populations
+
+```{r, echo = FALSE}
+for(chr in 1:22){
+  AFR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 4])),
+    1000,
+    500
+  )
+  AMR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 5])),
+    1000,
+    500
+  )
+  EAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 6])),
+    1000,
+    500
+  )
+  EUR <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 7])),
+    1000,
+    500
+  )
+  SAS <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 8])),
+    1000,
+    500
+  )
+  ALL <- rolling_windows_mean(
+    ldscores[ldscores$CHR == chr,]$BP,
+    as.vector(unlist(ldscores[ldscores$CHR == chr, 9])),
+    1000,
+    500
+  )
+  plot(
+    x = c(AFR$midpoints, AMR$midpoints, EAS$midpoints, EUR$midpoints, SAS$midpoints, ALL$midpoints),
+    y = c(AFR$means, AMR$means, EAS$means, EUR$means, SAS$means, ALL$means),
+    type = "n",
+    xlab = "genomic position (bp)",
+    ylab = "L2",
+    main = paste("chr", chr)
+  )
+  if(chr == 6) {
+    rect(
+      xleft = 25000000,
+      xright = 34000000,
+      ybottom = -100,
+      ytop = 100,
+      col = "lightgrey",
+      border = NULL
+    )
+  }
+  lines(
+    x = AFR$midpoints,
+    y = AFR$means,
+    col = 1
+  )
+  lines(
+    x = AMR$midpoints,
+    y = AMR$means,
+    col = 2
+  )
+  lines(
+    x = EAS$midpoints,
+    y = EAS$means,
+    col = 3
+  )
+  lines(
+    x = EUR$midpoints,
+    y = EUR$means,
+    col = 4
+  )
+  lines(
+    x = SAS$midpoints,
+    y = SAS$means,
+    col = 5
+  )
+  lines(
+    x = ALL$midpoints,
+    y = ALL$means,
+    col = 6,
+    lwd = 1.8
+  )
+  legend(
+    "topright",
+    legend = c("AFR", "AMR", "EAS", "EUR", "SAS", "ALL"),
+    lwd = c(rep(1, 5), 1.8),
+    col = 1:6
+  )
+}
+```
+
+```{r, echo = FALSE}
+plot_chr <- function(data, chr, pop_1_idx, pop_2_idx, pop_1_name, pop_2_name) {
+  one <- rolling_windows_mean(
+    data[data$CHR == chr,]$BP,
+    as.vector(unlist(data[data$CHR == chr, ..pop_1_idx])),
+    1000,
+    500
+  )
+  
+  two <- rolling_windows_mean(
+    data[data$CHR == chr,]$BP,
+    as.vector(unlist(data[data$CHR == chr, ..pop_2_idx])),
+    1000,
+    500
+  )
+  
+  plot(
+    x = c(one$midpoints, two$midpoints),
+    y = c(one$means, two$means),
+    type = "n",
+    xlab = "genomic position (bp)",
+    ylab = "L2",
+    main = paste("chr", chr)
+  )
+  lines(
+    x = one$midpoints,
+    y = one$means,
+    col = "black"
+  )
+  lines(
+    x = two$midpoints,
+    y = two$means,
+    col = "red"
+  )
+  legend(
+    "topright",
+    legend = c(pop_1_name, pop_2_name),
+    pch = "-",
+    col = c("black", "red")
+  )
+}
+```
+
+## Combined sample vs Mean of the 5 1000G populations
+
+```{r, echo = FALSE}
+for(CHR in 1:22) {
+  plot_chr(ldscores, CHR, 9, 10, "ALL", "MEAN")
+}
+```
+
+## Mean of the 5 1000G populations vs the weighted mean
+
+```{r, echo = FALSE}
+for(CHR in 1:22) {
+  plot_chr(ldscores, CHR, 10, 11, "MEAN", "WEIGHTED_MEAN")
+}
+```
