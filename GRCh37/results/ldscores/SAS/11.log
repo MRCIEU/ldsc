@@ -1,0 +1,37 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 3.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out 11 \
+--bfile SAS.11 \
+--l2  \
+--ld-wind-cm 1.0 
+
+Beginning analysis at Fri Mar 20 19:59:09 2026
+Read list of 61685 SNPs from SAS.11.bim
+Read list of 300 individuals from SAS.11.fam
+Reading genotypes from SAS.11.bed
+Estimating LD Score.
+Writing LD Scores for 61114 SNPs to 11.l2.ldscore.gz
+
+Summary of LD Scores in 11.l2.ldscore.gz
+        MAF       L2
+mean 0.2377  22.0853
+std  0.1430  26.1160
+min  0.0017  -3.7730
+25%  0.1150   9.2293
+50%  0.2283  15.7232
+75%  0.3583  25.3233
+max  0.5000 250.0557
+
+MAF/LD Score Correlation Matrix
+       MAF     L2
+MAF 1.0000 0.1524
+L2  0.1524 1.0000
+Analysis finished at Fri Mar 20 19:59:37 2026
+Total time elapsed: 28.26s
