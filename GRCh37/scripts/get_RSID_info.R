@@ -1,32 +1,32 @@
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-# if(!require("BiocManager", quietly = TRUE)){
-#   install.packages("BiocManager")
-# }
-#   
-# if(!require("biomaRt", quietly = TRUE)) {
-#   BiocManager::install("biomaRt")
-# }
-# 
-# library(biomaRt)
-# 
-# 
-# snp_mart = useMart("ENSEMBL_MART_SNP", 
-#                    dataset="hsapiens_snp",
-#                    host = "https://grch37.ensembl.org")
-# 
-# hm3_table <- read.table("../data/hm3/w_hm3.snplist",
-#                         header = T,
-#                         sep = "\t")
-# 
-# rsids <- hm3_table$SNP
-# 
-# coordinates_raw <- getBM(attributes = c("refsnp_id", "chr_name", "chrom_start"), 
-#                          filters = "snp_filter", 
-#                          values = rsids, 
-#                          mart = snp_mart)
-# 
-# save(coordinates_raw, file = "../data/hm3/rsid.coordinates.RData")
+if(!require("BiocManager", quietly = TRUE)){
+  install.packages("BiocManager")
+}
+  
+if(!require("biomaRt", quietly = TRUE)) {
+  BiocManager::install("biomaRt")
+}
+
+library(biomaRt)
+
+
+snp_mart = useMart("ENSEMBL_MART_SNP", 
+                   dataset="hsapiens_snp",
+                   host = "https://grch37.ensembl.org")
+
+hm3_table <- read.table("../data/hm3/w_hm3.snplist",
+                        header = T,
+                        sep = "\t")
+
+rsids <- hm3_table$SNP
+
+coordinates_raw <- getBM(attributes = c("refsnp_id", "chr_name", "chrom_start"), 
+                         filters = "snp_filter", 
+                         values = rsids, 
+                         mart = snp_mart)
+
+save(coordinates_raw, file = "../data/hm3/rsid.coordinates.RData")
 
 load("../data/hm3/rsid.coordinates.RData")
 

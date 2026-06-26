@@ -14,7 +14,7 @@ library(biomaRt)
 snp_mart = useMart("ENSEMBL_MART_SNP",
                    dataset="hsapiens_snp")
 
-hm3_table <- read.table("../../GRh38/data/hm3/w_hm3.snplist",
+hm3_table <- read.table("../../GRCh37/data/hm3/w_hm3.snplist",
                         header = T,
                         sep = "\t")
 
