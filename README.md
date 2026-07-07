@@ -60,7 +60,7 @@ Where `/ldscores/GRCh37/...` is pointing to the LDscores from this repository (s
 
 ## Generating the LDscores
 
-A set of scores have be generated for each of the following 1000 Genomes super-populations:
+A set of scores have been generated for each of the following 1000 Genomes super-populations:
 
     1) AFR
     2) AMR
