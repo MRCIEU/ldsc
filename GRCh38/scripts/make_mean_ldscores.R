@@ -32,7 +32,7 @@ ldscores$L2_MEAN_WEIGHTED <- apply(ldscores[,4:8], 1, FUN = function(x) {
   sum(as.vector(unlist(x)) * weights)
 })
 
-gzf <- gzfile("../results/ldscores/ldscores.all.plusMean.tsv.gz", "w")
+gzf <- gzfile("../results/ldscores.all.plusMean.tsv.gz", "w")
 write.table(
   ldscores,
   file = gzf,
