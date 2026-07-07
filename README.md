@@ -32,7 +32,7 @@ To run `ldsc` for real, you can do something like:
 docker run \
     -w /work \
     -v ${PWD}:/work \
-    mrcieu/ldsc:\dsc-0448dd3-python3.13 \
+    mrcieu/ldsc:ldsc-0448dd3-python3.13 \
     ldsc.py \
         --h2 sumstats.gz \
         --ref-ld-chr /ldscores/GRCh37/EUR/ \
@@ -46,7 +46,7 @@ or
 docker run \
     -w /work \
     -v ${PWD}:/work \
-    mrcieu/ldsc:\dsc-0448dd3-python3.13 \
+    mrcieu/ldsc:ldsc-0448dd3-python3.13 \
     ldsc.py \
         --h2 sumstats.gz \
         --ref-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN/ \
