@@ -1,6 +1,10 @@
-# LDscores for ldsc regression
+# LDscore regression
 
-This repository contains (nextflow) pipelines and data to generate LDscores for LDscore regression, as described in the [wiki](https://github.com/bulik/ldsc/wiki/LD-Score-Estimation-Tutorial) of the [original ldsc software](https://github.com/bulik/ldsc), as well as the generated scores themselves. It also contains an example Dockerfile which will generate an image containing [a newer version of the software](https://github.com/CBIIT/ldsc) as well as the scores from this repository which you can use to run LDscore regression yourself.
+This repository contains:
+
+1) LD scores for LDscore regression, as well as Nextflow pipelines and data to generate them, as described in the [wiki](https://github.com/bulik/ldsc/wiki/LD-Score-Estimation-Tutorial) of the [original ldsc software](https://github.com/bulik/ldsc). 
+
+2) A Dockerfile which will generate an image containing [a newer version of the ldsc software](https://github.com/CBIIT/ldsc) plus the scores from this repository, which you can use to run LDscore regression yourself.
 
 ## Using the Docker image to run ldsc
 
@@ -9,8 +13,8 @@ You need [Docker](https://www.docker.com/)
 Clone this repository, enter it, and build the image (the docker tag below is given for example purposes):
 
 ```sh
-git clone https://github.com/MRCIEU/ldsc-pop-prep
-cd ldsc-pop-prep
+git clone https://github.com/MRCIEU/ldsc
+cd ldsc
 docker build --platform linux/x86_64 --no-cache -t mrcieu/ldsc:ldsc-0448dd3-python3.13 .
 ```
 
@@ -35,8 +39,8 @@ docker run \
     mrcieu/ldsc:ldsc-0448dd3-python3.13 \
     ldsc.py \
         --h2 sumstats.gz \
-        --ref-ld-chr /ldscores/GRCh37/EUR/ \
-        --w-ld-chr /ldscores/GRCh37/EUR/ \
+        --ref-ld-chr /ldscores/GRCh38/EUR/ \
+        --w-ld-chr /ldscores/GRCh38/EUR/ \
         --out ldsc.h2
 ```
 
@@ -55,7 +59,7 @@ docker run \
         --out ldsc.h2
 ```
 
-Where `/ldscores/GRCh37/...` is pointing to the LDscores from this repository (see below) which were copied into the container when the image was built. Of course, you can also use your own scores by providing them and changing the path.
+Where `/ldscores/GRCh37/...` is pointing to the LDscores from this repository (see below) which were copied into the container when the image was built. You can also use your own scores by providing them and changing the path.
 
 
 ## Generating the LDscores
