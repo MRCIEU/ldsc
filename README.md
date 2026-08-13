@@ -119,7 +119,7 @@ And the sample lists retained after subsetting the data to `n` individuals for e
 
 ## Additional multi-ancestry scores
 
-The R script `make_weightedmean_ldscores.R` will generate LD scores based on the mean values from AFR AMR EAS EUR and SAS populations (by default the scores in this repository, but you can provide scores for those populations yorurself):
+The R script `make_weightedmean_ldscores.R` will generate LD scores based on the mean values from AFR AMR EAS EUR and SAS populations (by default the scores in this repository, but you can provide scores for those populations yourself):
 ```
 ❯ ./make_weightedmean_ldscores.R -h
 Usage: If using the scores from this repository, provide --build and sample sizes [--nafr, --namr, etc.]
