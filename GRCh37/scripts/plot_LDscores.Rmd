@@ -1,7 +1,7 @@
 ---
 title: "LD scores GRCh37"
 output: html_document
-date: "2026-06-25"
+date: "2026-08-13"
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +14,7 @@ library(data.table)
 
 ```{r, echo = FALSE}
 
-for(POP in c("AFR", "AMR", "EAS", "EUR", "SAS")) {
+for(POP in c("AFR", "AMR", "EAS", "EUR", "SAS", "MEAN", "WEIGHTED_MEAN_UKB")) {
   objname <- paste0(POP, "_ldscores_new")
   for(CHR in 1:22) {
     filename <- paste0("../results/ldscores/", POP, "/", CHR, ".l2.ldscore.gz")
@@ -26,10 +26,11 @@ for(POP in c("AFR", "AMR", "EAS", "EUR", "SAS")) {
       assign(objname, rbind(get(objname), df))
     }
   }
+  assign(objname, get(objname)[!duplicated(get(objname)[,2]),])
 }
 
 ldscores <- AFR_ldscores_new
-for(POP in c("AMR", "EAS", "EUR", "SAS")) {
+for(POP in c("AMR", "EAS", "EUR", "SAS", "MEAN", "WEIGHTED_MEAN_UKB")) {
   ldscores <- merge(
     ldscores, 
     get(paste0(POP, "_ldscores_new")),
@@ -37,13 +38,18 @@ for(POP in c("AMR", "EAS", "EUR", "SAS")) {
     sort = FALSE)
 }
 
-ldscores$L2_MEAN <- rowMeans(ldscores[,4:8], na.rm = T)
+gzf <- gzfile("../results/ldscores.all.plusMean.tsv.gz", "w")
+write.table(
+  ldscores,
+  file = gzf,
+  quote = F,
+  sep = "\t",
+  row.names = F
+)
+close(gzf)
+```
 
-weights <- c(9358, 1114, 2831, 465060, 10014) / 488377
-ldscores$L2_MEAN_WEIGHTED <- apply(ldscores[,4:8], 1, FUN = function(x) {
-  sum(as.vector(unlist(x)) * weights)
-})
-
+```{r, echo = FALSE}
 rolling_windows_mean <- function(i, x, size, step) {
   starts <- seq(1, length(x)-step, step)
   stops <- starts + size
@@ -337,7 +343,7 @@ for(chr in 1:22){
   )
   legend(
     "topright",
-    legend = c("AFR", "AMR", "EAS", "EUR", "SAS", "WEIGHTED MEAN"),
+    legend = c("AFR", "AMR", "EAS", "EUR", "SAS", "WEIGHTED MEAN UKB"),
     lwd = c(rep(1, 5), 1.8),
     col = 1:6
   )
@@ -392,7 +398,7 @@ plot_chr <- function(data, chr, pop_1_idx, pop_2_idx, pop_1_name, pop_2_name) {
 
 ```{r, echo = FALSE}
 for(CHR in 1:22) {
-  plot_chr(ldscores, CHR, 9, 10, "MEAN", "WEIGHTED_MEAN")
+  plot_chr(ldscores, CHR, 9, 10, "MEAN", "WEIGHTED MEAN UKB")
 }
 ```
 

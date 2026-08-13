@@ -53,13 +53,13 @@ docker run \
     mrcieu/ldsc:ldsc-0448dd3-python3.13 \
     ldsc.py \
         --h2 sumstats.gz \
-        --ref-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN/ \
-        --w-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN/ \
+        --ref-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN_UKB/ \
+        --w-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN_UKB/ \
         --not-M-5-50 \
         --out ldsc.h2
 ```
 
-Where `/ldscores/GRCh37/...` is pointing to the LDscores from this repository (see below) which were copied into the container when the image was built. You can also use your own scores by providing them and changing the path.
+Where `/ldscores/GRCh37/...` is pointing to the LDscores from this repository (see below) which were copied into the container when the image was built. You can use your own scores by changing the paths.
 
 
 ## Generating the LDscores
@@ -80,10 +80,6 @@ The pipelines require that you download ~33GB (14GB) of 1000 Genomes data as inp
 
 Genetic map data is already present in `GRCh3{X}/data/map/`. For GRCh38 the map data (in `GRCh38/data/hm3/map`) was obtained, then derived, from [Halldorsson et al. 2019](https://www.science.org/doi/10.1126/science.aau1043). For GRCh37 the map data is from [here](https://mathgen.stats.ox.ac.uk/impute/1000GP%20Phase%203%20haplotypes%206%20October%202014.html).
 
-
-## Additional multi-ancestry LD scores
-
-There is R code in the `GRCh3{X}/scripts/` folder to generate LD scores based on the mean values from the AFR AMR EAS EUR and SAS populations' scores. 
 
 ## Running the pipeline to generate the scores
 
@@ -121,26 +117,71 @@ And the sample lists retained after subsetting the data to `n` individuals for e
 {results_dir}/sample_lists/{POP}.samples.tsv
 ```
 
-## Multi-ancestry scores
+## Additional multi-ancestry scores
 
-Once you have run the pipeline you can run the code in `GRCh3{X}/scripts/make_mean_ldscores.R` which will create:
+The R script `make_weightedmean_ldscores.R` will generate LD scores based on the mean values from AFR AMR EAS EUR and SAS populations (by default the scores in this repository, but you can provide scores for those populations yorurself):
+```
+❯ ./make_weightedmean_ldscores.R -h
+Usage: If using the scores from this repository, provide --build and sample sizes [--nafr, --namr, etc.]
+for at least two populations.
+
+Otherwise you can provide paths to any (AFR, AMR, EAS, EUR or SAS) scores using the --pX flags + your
+desired sample sizes
+
+Write mean LDscores for multiple ancestries, weighted by sample sizes
+
+Options:
+	-h, --help
+		Show this help message and exit
+	--build=BUILD
+		Genome build: GRCh37 or GRCh38
+	--nafr=NAFR
+		Number of samples with AFR ancestry
+	--namr=NAMR
+		Number of samples with AMR ancestry
+	--neas=NEAS
+		Number of samples with EAS ancestry
+	--neur=NEUR
+		Number of samples with EUR ancestry
+	--nsas=NSAS
+		Number of samples with SAS ancestry
+	--pafr=PAFR
+		Path to LDscores for AFR ancestry
+	--pamr=PAMR
+		Path to LDscores for AMR ancestry
+	--peas=PEAS
+		Path to LDscores for EAS ancestry
+	--peur=PEUR
+		Path to LDscores for EUR ancestry
+	--psas=PSAS
+		Path to LDscores for SAS ancestry
+	--outdir=OUTDIR
+		name of output folder to write weighted mean ldscores to
+```
+
+Precomputed mean scores across all five ancestries are available with 1) no weighting by sample size (i.e. just the arithmetic mean), and 2) weighted according to the inferred genetic ancestries of participants in the UK Biobank, in the following directory structure: 
 
 ```
-{results_dir}/
-    ldscores/
-        MEAN/
-        WEIGHTED_MEAN/
+GRCh3{X}/
+    results/
+        ldscores/
+            MEAN/
+            WEIGHTED_MEAN_UKB/
 ```
 
-`MEAN/` contains the arithmetic mean of the scores for the AFR AMR EAS EUR and SAS populations, at sites which are present in every population's individual LD scores.
+These scores were generated as follows (for GRCh38):
 
-`WEIGHTED_MEAN/` contains the arithmetic mean weighted by the samples sizes as they are in the UK Biobank.
+```
+❯ ./make_weightedmean_ldscores.R --build GRCh38 --nafr 9358 --namr 1114 --neas 2831 --neur 465060 --nsas 10014 --outdir GRCh38/results/ldscores/WEIGHTED_MEAN_UKB
+
+❯ ./make_weightedmean_ldscores.R --build GRCh38 --nafr 1 --namr 1 --neas 1 --neur 1 --nsas 1 --outdir GRCh38/results/ldscores/MEAN
+```
 
 The results for the mean LD scores only contain the `{chr}.l2.M` files, not the `{chr}.l2.M_5_50` files, so to use them you will need to pass the `--not-M-5-50` flag to `ldsc.py`.
 
 ## Plots
 
-Per chromosome plots of the scores are available in `GRCh3{X}/scripts/plot_LDscores.html`. The shaded area on chromosome 6 is roughly the extended HLA region.
+Per chromosome plots of the scores are available in `GRCh3{X}/scripts/plot_LDscores.html`. The shaded area on chromosome 6 is roughly the extended HLA region. Tables of all populations' scores are also available in `GRCh3{X}/results/ldscores.all.plusMean.tsv.gz`.
 
 ## Notes
 
