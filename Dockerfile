@@ -9,9 +9,7 @@ COPY --from=astral/uv:latest /uv /uvx /usr/local/bin/
 
 RUN git clone https://github.com/CBIIT/ldsc.git && \
     cd ldsc && \
-    git checkout 0448dd3
-
-RUN cd ldsc && \
+    git checkout 0448dd3 && \
     uv venv && \
     uv init --bare && \
     uv add -r requirements.txt && \
