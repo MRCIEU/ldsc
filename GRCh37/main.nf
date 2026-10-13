@@ -19,7 +19,7 @@ workflow {
     sample_c = channel.of(samples)
     relative_c = channel.of(relatives)
     n_c = channel.of(params.n)
-    
+
     pop_sample_lists_c = pop_c
         | combine(sample_c)
         | combine(relative_c)
@@ -33,12 +33,12 @@ workflow {
     chr_c = channel.from(1..22)
 
     chr_vcf_c = chr_c
-        | map { chr -> [chr, 
+        | map { chr -> [chr,
                         "${vcf_dir}/ALL.chr${chr}.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz",
                         "${vcf_dir}/ALL.chr${chr}.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz.tbi",
                         "${reg_dir}/chr${chr}.rsid.coordinates.hg19.regions",
                         "${reg_dir}/chr${chr}.rsid.coordinates.hg19.tsv"] }
-    
+
     bfile_c = pop_sample_lists_c
         | combine(chr_vcf_c)
         | subset_vcfs
@@ -59,9 +59,9 @@ process get_sample_lists {
 
     script:
     """
-    egrep -e "[A-Z]{2}[0-9]{5}" -o ${relative_list} > exclude
+    egrep "[A-Z]{2}[0-9]{5}" -o ${relative_list} > exclude
     egrep "${pop_regex}" ${sample_list} | cut -f1 > all_samples
-    egrep -v -f exclude all_samples | gshuf | head -n${N} > ${pop}.samples.tsv
+    egrep -v -f exclude all_samples | shuf | head -n${N} > ${pop}.samples.tsv
     """
 }
 

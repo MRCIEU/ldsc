@@ -17,7 +17,7 @@ workflow {
     pop_c = channel.from(pops)
     sample_c = channel.of(samples)
     n_c = channel.of(params.n)
-    
+
     pop_sample_lists_c = pop_c
         | combine(sample_c)
         | combine(n_c)
@@ -32,12 +32,12 @@ workflow {
     chr_c = channel.from(1..22)
 
     chr_vcf_c = chr_c
-        | map { chr -> [chr, 
+        | map { chr -> [chr,
                         "${vcf_dir}/CCDG_14151_B01_GRM_WGS_2020-08-05_chr${chr}.filtered.shapeit2-duohmm-phased.vcf.gz",
                         "${vcf_dir}/CCDG_14151_B01_GRM_WGS_2020-08-05_chr${chr}.filtered.shapeit2-duohmm-phased.vcf.gz.tbi",
                         "${reg_dir}/chr${chr}.rsid.coordinates.regions",
                         "${reg_dir}/chr${chr}.rsid.coordinates.tsv"] }
-    
+
     bfile_c = pop_sample_lists_c
         | combine(chr_vcf_c)
         | subset_vcfs
@@ -64,7 +64,7 @@ process get_sample_lists {
     gu csv filter ${sample_list} -e "Superpopulation==${pop_regex}" |\
         gu csv select -c SampleID |\
         tail -n+2 > all_samples
-    egrep -v -f exclude all_samples | gshuf | head -n${N} > ${pop}.samples.tsv
+    egrep -v -f exclude all_samples | shuf | head -n${N} > ${pop}.samples.tsv
     """
 }
 

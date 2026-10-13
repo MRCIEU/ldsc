@@ -81,11 +81,12 @@ The pipelines require that you download ~33GB (14GB) of 1000 Genomes data as inp
 Genetic map data is already present in `GRCh3{X}/data/map/`. For GRCh38 the map data (in `GRCh38/data/hm3/map`) was obtained, then derived, from [Halldorsson et al. 2019](https://www.science.org/doi/10.1126/science.aau1043). For GRCh37 the map data is from [here](https://mathgen.stats.ox.ac.uk/impute/1000GP%20Phase%203%20haplotypes%206%20October%202014.html).
 
 
-## Running the pipeline to generate the scores
+## Running the pipelines to generate the scores
 
-The various software the pipeline needs must be already available to you locally. Then:
+The various software the pipelines need are available as docker images in `dependencies/`. If you build them, you can run:
 
 ```
+cd GRCh3{X}
 nextflow run main.nf
 ```
 
