@@ -55,7 +55,6 @@ docker run \
         --h2 sumstats.gz \
         --ref-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN_UKB/ \
         --w-ld-chr /ldscores/GRCh37/WEIGHTED_MEAN_UKB/ \
-        --not-M-5-50 \
         --out ldsc.h2
 ```
 
@@ -178,7 +177,7 @@ These scores were generated as follows (for GRCh38):
 ❯ ./make_weightedmean_ldscores.R --build GRCh38 --nafr 1 --namr 1 --neas 1 --neur 1 --nsas 1 --outdir GRCh38/results/ldscores/MEAN
 ```
 
-The results for the mean LD scores only contain the `{chr}.l2.M` files, not the `{chr}.l2.M_5_50` files, so to use them you will need to pass the `--not-M-5-50` flag to `ldsc.py`.
+The `{chr}.l2.M` and `{chr}.l2.M_5_50` files for the mean scores are the weighted means (using the same weights as the LD scores, rounded to the nearest integer) of the corresponding per-population SNP counts. Each population's LD scores sum r² over that population's own reference panel, so the per-population counts are the right ones to average. A SNP's mean score includes LD with SNPs that are not in all populations, so the counts are not taken from the intersection of populations retained in the `.ldscore.gz` files. As with the single-population scores, `ldsc.py` uses `M_5_50` by default, so h² refers to common (MAF > 5%) SNPs.
 
 ## Plots
 

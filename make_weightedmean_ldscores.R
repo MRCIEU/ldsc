@@ -107,8 +107,16 @@ for(chr in 1:22) {
     quote = F,
     sep = "\t")
   
-  f <- file(file.path(args$outdir, paste0(chr, ".l2.M")))
-  writeLines(as.character(nrow(sub)), f)
-  close(f)
+  # Each population's LD scores sum r^2 over that population's full reference panel,
+  # so the matching SNP counts are the weighted means of the per-population counts
+  # (not the number of SNPs retained after intersecting the populations).
+  for(suffix in c(".l2.M", ".l2.M_5_50")) {
+    m <- sapply(RETAINED_POPS, FUN = function(POP) {
+      as.numeric(readLines(file.path(POP[["path"]], paste0(chr, suffix)), n = 1))
+    })
+    f <- file(file.path(args$outdir, paste0(chr, suffix)))
+    writeLines(as.character(round(sum(m * weights))), f)
+    close(f)
+  }
 }
 
