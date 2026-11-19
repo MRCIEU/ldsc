@@ -1,0 +1,5 @@
+GRCh37/data/vcf
+GRCh38/data/vcf
+
+*.nextflow*
+*work

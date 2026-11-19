@@ -7,8 +7,6 @@ date: "2026-08-13"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
-
 library(data.table)
 ```
 
