@@ -41,7 +41,7 @@ parser <- add_option(parser, "--outdir", help = "name of output folder to write 
 args <- parse_args(parser)
 
 if(is.null(args$build)) {
-  if(sum(sapply(c(args$pafr, args$pamr, args$peas, args$peur, args$psas), function(x) { length(x) != 0 }) < 2 )) {
+  if(sum(sapply(list(args$pafr, args$pamr, args$peas, args$peur, args$psas), function(x) { length(x) != 0 })) < 2 ) {
     cat("Error: if you don't provide --build, you must provide at least 2 paths to population-specific LDscores")
     quit(save = "no", status = 1)
   }
