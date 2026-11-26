@@ -1,6 +1,8 @@
+#!/usr/bin/env bash
+
 # Download phased genotype data + sample relatedness info + sample population information from the 1000 Genomes project
 
-mkdir vcf/
+mkdir -p vcf/
 
 seq 1 22 |\
     parallel -j8 wget -P vcf/ https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{}.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz
